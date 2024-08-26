@@ -1,6 +1,7 @@
 package com.service.authservice.controller;
 
 
+import com.service.authservice.payload.in.LoginRequestDTO;
 import com.service.authservice.payload.in.RegisterRequestDTO;
 import com.service.authservice.payload.out.MessageResponseDTO;
 import jakarta.validation.Valid;
@@ -19,4 +20,8 @@ public class AuthController {
         return ResponseEntity.ok(new MessageResponseDTO("User registered successfully!"));
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<MessageResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequest) {
+        return ResponseEntity.ok(new MessageResponseDTO("User logged in successfully!"));
+    }
 }
