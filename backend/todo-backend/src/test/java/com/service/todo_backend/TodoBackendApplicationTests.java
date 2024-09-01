@@ -1,10 +1,10 @@
-package com.service.authservice;
+package com.service.todo_backend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class AuthserviceApplicationTests {
+class TodoBackendApplicationTests {
 
 	@Test
 	void contextLoads() {

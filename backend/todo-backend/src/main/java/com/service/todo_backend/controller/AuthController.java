@@ -1,5 +1,4 @@
-package com.service.authservice.controller;
-
+package com.service.todo_backend.controller;
 
 import com.service.authservice.payload.in.LoginRequestDTO;
 import com.service.authservice.payload.in.RegisterRequestDTO;

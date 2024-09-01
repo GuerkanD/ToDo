@@ -1,6 +1,6 @@
-package com.service.authservice.repository;
+package com.service.todo_backend.repository;
 
-import com.service.authservice.model.User;
+import com.service.todo_backend.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 

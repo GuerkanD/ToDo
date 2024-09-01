@@ -1,4 +1,4 @@
-package com.service.authservice.model;
+package com.service.todo_backend.model;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.Comment;

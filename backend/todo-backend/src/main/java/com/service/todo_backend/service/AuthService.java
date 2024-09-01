@@ -1,8 +1,8 @@
-package com.service.authservice.service;
+package com.service.todo_backend.service;
 
-import com.service.authservice.model.User;
-import com.service.authservice.payload.in.RegisterRequestDTO;
-import com.service.authservice.repository.UserRepository;
+import com.service.todo_backend.model.User;
+import com.service.todo_backend.payload.in.RegisterRequestDTO;
+import com.service.todo_backend.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
