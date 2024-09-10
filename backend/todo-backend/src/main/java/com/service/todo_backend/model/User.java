@@ -1,7 +1,6 @@
 package com.service.todo_backend.model;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;

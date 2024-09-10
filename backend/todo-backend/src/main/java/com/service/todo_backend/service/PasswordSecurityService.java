@@ -22,7 +22,7 @@ public class PasswordSecurityService {
             var allowedSymbols = "~`! @#$%^&*()_-+={[}]|:;<,>.?/";
             if(allowedSymbols.indexOf(c) != -1)
                 hasSymbol = true;
-            else
+            else 
                 hasUnknownChar = true;
         }
 

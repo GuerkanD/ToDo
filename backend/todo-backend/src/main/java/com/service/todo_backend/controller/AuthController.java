@@ -29,7 +29,7 @@ public class AuthController {
         if (registerRequest.password().length() < 8) {
             return ResponseEntity.badRequest().body(new MessageResponseDTO("Error: Password must be at least 8 characters long!"));
         }
-        if (passwordSecurityService.checkPasswordSecurity(registerRequest.password())) {
+        if (!passwordSecurityService.checkPasswordSecurity(registerRequest.password())) {
             return ResponseEntity.badRequest().body(new MessageResponseDTO("Error: Password must contain at least one digit, one uppercase letter, one lowercase letter, and one special character!"));
         }
         if (!authService.isEmailValid(registerRequest.email())) {
