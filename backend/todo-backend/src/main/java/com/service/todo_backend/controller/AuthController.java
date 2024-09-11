@@ -46,6 +46,13 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<MessageResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequest) {
+        if (!authService.doesEmailExist(loginRequest.email())) {
+            return ResponseEntity.badRequest().body(new MessageResponseDTO("Error: Email or Password is wrong!"));
+        }
+        if (!authService.comparePasswords(loginRequest)) {
+            return ResponseEntity.badRequest().body(new MessageResponseDTO("Error: Email or Password is wrong!"));
+        }
+
         return ResponseEntity.ok(new MessageResponseDTO("User logged in successfully!"));
     }
 }
