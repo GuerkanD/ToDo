@@ -41,7 +41,7 @@ public class AuthService {
 
     public boolean comparePasswords(LoginRequestDTO login) {
         try {
-            User user = userRepository.findByEmail(login.email());
+            User user = userRepository.findByEmail(login.email()).get();
             return encoder.matches(login.password(), user.getPassword());
         } catch (Exception e) {
             logger.error("Error while comparing password: {}", e.getMessage());

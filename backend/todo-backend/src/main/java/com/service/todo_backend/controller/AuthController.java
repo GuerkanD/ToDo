@@ -52,7 +52,8 @@ public class AuthController {
         if (!authService.comparePasswords(loginRequest)) {
             return ResponseEntity.badRequest().body(new MessageResponseDTO("Error: Email or Password is wrong!"));
         }
-
+        
+        
         return ResponseEntity.ok(new MessageResponseDTO("User logged in successfully!"));
     }
 }
