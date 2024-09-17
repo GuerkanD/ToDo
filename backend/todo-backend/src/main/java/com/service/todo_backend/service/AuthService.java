@@ -28,6 +28,10 @@ public class AuthService {
         return email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
     }
 
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email).get();
+    }
+
     public boolean createUser(RegisterRequestDTO register) {
         String encodedPassword = encoder.encode(register.password());
         try {

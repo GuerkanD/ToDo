@@ -1,9 +1,11 @@
 package com.service.todo_backend.controller;
 
+import com.service.todo_backend.model.User;
 import com.service.todo_backend.payload.in.LoginRequestDTO;
 import com.service.todo_backend.payload.in.RegisterRequestDTO;
 import com.service.todo_backend.payload.out.MessageResponseDTO;
 import com.service.todo_backend.service.AuthService;
+import com.service.todo_backend.service.JwtService;
 import com.service.todo_backend.service.PasswordSecurityService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -18,10 +20,12 @@ public class AuthController {
 
     private final PasswordSecurityService passwordSecurityService;
     private final AuthService authService;
+    private final JwtService jwtService;
 
-    public AuthController(PasswordSecurityService passwordSecurityService, AuthService authService) {
+    public AuthController(PasswordSecurityService passwordSecurityService, AuthService authService, JwtService jwtService) {
         this.passwordSecurityService = passwordSecurityService;
         this.authService = authService;
+        this.jwtService = jwtService;
     }
 
     @PostMapping("/register")
@@ -52,8 +56,9 @@ public class AuthController {
         if (!authService.comparePasswords(loginRequest)) {
             return ResponseEntity.badRequest().body(new MessageResponseDTO("Error: Email or Password is wrong!"));
         }
-        
-        
-        return ResponseEntity.ok(new MessageResponseDTO("User logged in successfully!"));
+        User user = authService.getUserByEmail(loginRequest.email());
+        String generateToken = jwtService.generateToken(user);
+
+        return ResponseEntity.ok(new MessageResponseDTO(generateToken));
     }
 }
