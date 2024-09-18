@@ -8,6 +8,8 @@ import com.service.todo_backend.service.AuthService;
 import com.service.todo_backend.service.JwtService;
 import com.service.todo_backend.service.PasswordSecurityService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("api/v1")
 public class AuthController {
+
+    private final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     private final PasswordSecurityService passwordSecurityService;
     private final AuthService authService;
