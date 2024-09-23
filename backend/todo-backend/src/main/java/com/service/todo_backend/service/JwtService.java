@@ -1,7 +1,6 @@
 package com.service.todo_backend.service;
 
 import com.service.todo_backend.model.User;
-import io.jsonwebtoken.io.Decoders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -10,6 +9,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.Claims;
+
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
@@ -29,17 +29,14 @@ public class JwtService {
     private long jwtExpiration;
 
     private Key getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
+        byte[] keyBytes = jwtSecret.getBytes();
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String generateToken(User user) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", user.getId());
-        claims.put("email", user.getEmail());
-        claims.put("firstName", user.getFirstname());
-        claims.put("lastName", user.getLastname());
-        return createToken(claims, (user.getFirstname() + " " + user.getLastname()));
+        return createToken(claims, "todo-manager");
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
@@ -47,7 +44,7 @@ public class JwtService {
                 .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration * 1000))
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -66,16 +63,8 @@ public class JwtService {
         return Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody();
     }
 
-    public String getEmailFromToken(String token) {
-        return getClaimsFromToken(token).get("email").toString();
-    }
-
     public String getUserIdFromToken(String token) {
         return getClaimsFromToken(token).get("userId").toString();
-    }
-
-    public String getFullNameFromToken(String token) {
-        return getClaimsFromToken(token).get("firstName").toString() + " " + getClaimsFromToken(token).get("lastName").toString();
     }
 
     private Date getExpirationDateFromToken(String token) {
