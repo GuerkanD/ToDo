@@ -62,8 +62,4 @@ public class AuthController {
         return ResponseEntity.ok(new MessageResponseDTO(generateToken));
     }
 
-    @PostMapping("/test")
-    public ResponseEntity<MessageResponseDTO> logout() {
-        return ResponseEntity.ok(new MessageResponseDTO("Auth Test"));
-    }
 }
