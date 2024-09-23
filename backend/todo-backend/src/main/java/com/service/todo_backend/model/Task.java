@@ -1,6 +1,7 @@
 package com.service.todo_backend.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -11,7 +12,7 @@ public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "t_id", nullable = false, updatable = false)
-    private Long taskId;
+    private Long id;
 
     @Column(length = 100, nullable = false)
     private String title;
@@ -31,6 +32,7 @@ public class Task {
     private User user;
 
     @Column(name = "created_at", nullable = false, updatable = false)
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     public LocalDateTime getCreatedAt() {
@@ -55,7 +57,7 @@ public class Task {
     }
 
     public Long getTaskId() {
-        return taskId;
+        return id;
     }
 
     public String getTitle() {
@@ -103,7 +105,7 @@ public class Task {
     }
 
     public void setTaskId(Long taskId) {
-        this.taskId = taskId;
+        this.id = taskId;
     }
 
 }

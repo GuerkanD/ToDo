@@ -1,7 +1,7 @@
 package com.service.todo_backend.model;
 
 import jakarta.persistence.*;
-import jdk.jfr.Relational;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.context.annotation.Lazy;
 
 import java.time.LocalDateTime;
@@ -9,18 +9,20 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "category")
 public class Category {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ca_id", nullable = false, updatable = false)
-    private Long categoryId;
+    private Long id;
 
     @Column(length = 100, nullable = false)
     private String title;
 
     @Column()
-    private String description;
+    private String content;
 
     @Column(name = "created_at", nullable = false, updatable = false)
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     @ManyToOne
@@ -31,9 +33,9 @@ public class Category {
     public Category() {
     }
 
-    public Category(String title, String description,User user) {
+    public Category(String title, String content, User user) {
         this.title = title;
-        this.description = description;
+        this.content = content;
         this.user = user;
     }
 
@@ -43,15 +45,15 @@ public class Category {
     }
 
     public Long getCategoryId() {
-        return categoryId;
+        return id;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public String getDescription() {
-        return description;
+    public String getContent() {
+        return content;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -66,8 +68,8 @@ public class Category {
         this.title = title;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public void setUser(User user) {

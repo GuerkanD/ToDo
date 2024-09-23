@@ -5,9 +5,7 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -38,14 +36,14 @@ public class AuthenticationFilter implements Filter {
                 String userId = jwtService.getUserIdFromToken(token);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userId,null,null);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                return;
+                chain.doFilter(request, response);
             } else {
                 logger.info("Invalid token");
-                throw new ServletException("Invalid token");
+                throw new ServletException("Invalid token"); //TODO Better Error Handling 401
             }
         } catch (Exception e) {
             logger.error("Error while validating token: {}", e.getMessage());
-            throw new ServletException("Invalid token");
+            throw new ServletException("Invalid token");    //TODO Better Error Handling 401 or 500
         }
     }
 

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("api/v1")
+@RequestMapping("/api/v1")
 public class AuthController {
 
     private final PasswordSecurityService passwordSecurityService;
@@ -33,6 +33,9 @@ public class AuthController {
         if (registerRequest.password().length() < 8) {
             return ResponseEntity.badRequest().body(new MessageResponseDTO("Error: Password must be at least 8 characters long!"));
         }
+        if (registerRequest.password().length() > 72) {
+            return ResponseEntity.badRequest().body(new MessageResponseDTO("Error: Password must be at most 72 characters long!"));
+        }
         if (!passwordSecurityService.checkPasswordSecurity(registerRequest.password())) {
             return ResponseEntity.badRequest().body(new MessageResponseDTO("Error: Password must contain at least one digit, one uppercase letter, one lowercase letter, and one special character!"));
         }
@@ -49,7 +52,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<MessageResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequest) {
+    public ResponseEntity<MessageResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequest) { //TODO Change checks
         if (!authService.doesEmailExist(loginRequest.email())) {
             return ResponseEntity.badRequest().body(new MessageResponseDTO("Error: Email or Password is wrong!"));
         }
