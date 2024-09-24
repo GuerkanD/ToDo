@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class AuthService {
     private final BCryptPasswordEncoder encoder;
@@ -20,7 +22,7 @@ public class AuthService {
         this.encoder = encoder;
     }
 
-    public boolean doesEmailExist(String email) {
+    public boolean doesEmailExist(String email) { //TODO refactor to UserService
         return userRepository.existsByEmail(email);
     }
 
@@ -28,12 +30,12 @@ public class AuthService {
         return email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
     }
 
-    public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email).get();
+    public Optional<User> getUserByEmail(String email) { //TODO refactor to UserService
+        return userRepository.findByEmail(email);
     }
 
-    public boolean createUser(RegisterRequestDTO register) {
-        String encodedPassword = encoder.encode(register.password());
+    public boolean createUser(RegisterRequestDTO register) { //TODO refactor to UserService
+        String encodedPassword = encoder.encode(register.password()); //TODO write in own method
         try {
             userRepository.save(new User(register.firstname(), register.lastname(), register.email(), encodedPassword));
             return true;
@@ -43,9 +45,8 @@ public class AuthService {
         }
     }
 
-    public boolean comparePasswords(LoginRequestDTO login) {
+    public boolean comparePasswords(LoginRequestDTO login,User user) {
         try {
-            User user = userRepository.findByEmail(login.email()).get();
             return encoder.matches(login.password(), user.getPassword());
         } catch (Exception e) {
             logger.error("Error while comparing password: {}", e.getMessage());

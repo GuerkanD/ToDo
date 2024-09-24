@@ -24,10 +24,6 @@ public class CategoryService {
     }
 
     public Category createCategory(CategoryDTO categoryDTO, Long userId) { //TODO add proper validation
-        if (categoryDTO.title().isEmpty()) {
-            logger.error("Category title is empty");
-            return null;
-        }
         try {
             Optional<User> user = userRepository.findById(userId);
             if (user.isEmpty()) {

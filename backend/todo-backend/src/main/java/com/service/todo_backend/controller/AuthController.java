@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/v1")
 public class AuthController {
@@ -48,21 +50,19 @@ public class AuthController {
         if (authService.createUser(registerRequest)) {
             return ResponseEntity.ok(new MessageResponseDTO("User registered successfully!"));
         }
-        return ResponseEntity.badRequest().body(new MessageResponseDTO("Error: User registration failed!"));
+        return ResponseEntity.internalServerError().body(new MessageResponseDTO("Error: User registration failed!"));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<MessageResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequest) { //TODO Change checks
-        if (!authService.doesEmailExist(loginRequest.email())) {
+    public ResponseEntity<MessageResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequest) {
+        Optional<User> user = authService.getUserByEmail(loginRequest.email());
+        if (user.isEmpty()) {
             return ResponseEntity.badRequest().body(new MessageResponseDTO("Error: Email or Password is wrong!"));
         }
-        if (!authService.comparePasswords(loginRequest)) {
+        if (!authService.comparePasswords(loginRequest,user.get())) {
             return ResponseEntity.badRequest().body(new MessageResponseDTO("Error: Email or Password is wrong!"));
         }
-        User user = authService.getUserByEmail(loginRequest.email());
-        String generateToken = jwtService.generateToken(user);
-
+        String generateToken = jwtService.generateToken(user.get());
         return ResponseEntity.ok(new MessageResponseDTO(generateToken));
     }
-
 }

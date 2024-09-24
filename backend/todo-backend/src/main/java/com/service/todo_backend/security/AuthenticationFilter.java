@@ -3,6 +3,7 @@ package com.service.todo_backend.security;
 import com.service.todo_backend.service.JwtService;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,6 +27,7 @@ public class AuthenticationFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
         String token = extractToken(httpRequest);
         try {
             if (Arrays.stream(WebSecurityConfig.getNonAuthenticatedPaths()).toList().contains(httpRequest.getRequestURI())) {
@@ -39,11 +41,11 @@ public class AuthenticationFilter implements Filter {
                 chain.doFilter(request, response);
             } else {
                 logger.info("Invalid token");
-                throw new ServletException("Invalid token"); //TODO Better Error Handling 401
+                httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             }
         } catch (Exception e) {
             logger.error("Error while validating token: {}", e.getMessage());
-            throw new ServletException("Invalid token");    //TODO Better Error Handling 401 or 500
+            httpResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
