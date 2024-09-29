@@ -38,11 +38,8 @@ public class CategoryController {
     @PostMapping()
     public ResponseEntity<MessageResponseDTO> createCategory(@Valid @RequestBody CategoryDTO categoryDTO, Authentication authentication) {
         Optional<User> user = userService.getUserById((Long) authentication.getPrincipal());
-        if (categoryDTO.title().isEmpty()) {
-            return ResponseEntity.badRequest().body(new MessageResponseDTO("Error: Title cannot be empty!"));
-        }
-        if (categoryDTO.title().length() > 100) {
-            return ResponseEntity.badRequest().body(new MessageResponseDTO("Error: Title must be at most 100 characters long!"));
+        if (categoryService.checkValidCategory(categoryDTO)) {
+            return ResponseEntity.badRequest().body(new MessageResponseDTO("Invalid category"));
         }
         if (categoryService.createCategory(categoryDTO, user.orElseThrow())) {
             return ResponseEntity.ok(new MessageResponseDTO("Category created successfully"));
@@ -59,6 +56,12 @@ public class CategoryController {
                 : ResponseEntity.ok(categories);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Category> getCategoryById(@PathVariable Long id, Authentication authentication) {
+        Optional<Category> category = categoryService.getCategoryById(id, (Long) authentication.getPrincipal());
+        return category.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<MessageResponseDTO> deleteCategory(@PathVariable Long id, Authentication authentication) {
         Optional<User> user = userService.getUserById((Long) authentication.getPrincipal());
@@ -70,6 +73,19 @@ public class CategoryController {
         }
         logger.error("Failed to delete category");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new MessageResponseDTO("Failed to delete category"));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<MessageResponseDTO> updateCategory(@PathVariable Long id, @Valid @RequestBody CategoryDTO categoryDTO, Authentication authentication) {
+        Optional<User> user = userService.getUserById((Long) authentication.getPrincipal());
+        if (categoryService.checkValidCategory(categoryDTO)) {
+            return ResponseEntity.badRequest().body(new MessageResponseDTO("Invalid category"));
+        }
+        if (categoryService.updateCategory(id, categoryDTO, user.orElseThrow())) {
+            return ResponseEntity.ok(new MessageResponseDTO("Category updated successfully"));
+        }
+        logger.error("Failed to update category");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new MessageResponseDTO("Failed to update category"));
     }
 
 }
