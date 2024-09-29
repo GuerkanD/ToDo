@@ -1,4 +1,6 @@
 package com.service.todo_backend.service;
+import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,34 +10,38 @@ import com.service.todo_backend.model.Category;
 import com.service.todo_backend.model.User;
 import com.service.todo_backend.payload.in.CategoryDTO;
 import com.service.todo_backend.repository.CategoryRepository;
-import com.service.todo_backend.repository.UserRepository;
-
-import java.util.Optional;
 
 @Service
 public class CategoryService {
     private final CategoryRepository categoryRepository;
-    private final UserRepository userRepository;
     private final Logger logger = LoggerFactory.getLogger(CategoryService.class);
     
-    public CategoryService(CategoryRepository categoryRepository, UserRepository userRepository) {
+    public CategoryService(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
-        this.userRepository = userRepository;
     }
 
-    public Category createCategory(CategoryDTO categoryDTO, Long userId) { //TODO add proper validation
+    public boolean createCategory(CategoryDTO categoryDTO, User user) {
         try {
-            Optional<User> user = userRepository.findById(userId);
-            if (user.isEmpty()) {
-                logger.error("User not found");
-                return null;
-            }
-            return categoryRepository.save(new Category(categoryDTO.title(), categoryDTO.description(), user.get()));
+            categoryRepository.save(new Category(categoryDTO.title(), categoryDTO.description(), user));
+            return true;
         } catch (Exception e) {
             logger.error("Error while creating category: {}", e.getMessage());
-            return null;
+            return false;
         }
     }
 
+    public List<Category> getAllCategories(Long userId) {
+        return categoryRepository.findAllByUserId(userId);
+    }
+
+    public boolean deleteCategory(Long categoryId, Long userId) {
+        try {
+            categoryRepository.deleteCategoryByCategoryIdAndUserId(categoryId, userId);
+            return true;
+        } catch (Exception e) {
+            logger.error("Error while deleting category: {}", e.getMessage());
+            return false;
+        }
+    }
 
 }

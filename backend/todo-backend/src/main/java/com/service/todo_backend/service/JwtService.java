@@ -21,6 +21,11 @@ import org.springframework.beans.factory.annotation.Value;
 public class JwtService {
 
     private final Logger logger = LoggerFactory.getLogger(JwtService.class);
+    private final UserService userService;
+
+    public JwtService(UserService userService) {
+        this.userService = userService;
+    }
 
     @Value("${security.jwt.secret-key}")
     private String jwtSecret;
@@ -51,6 +56,7 @@ public class JwtService {
 
     public boolean validateToken(String token) {
         try {
+            if (!userService.isUserValid(getUserIdFromToken(token))) return false;
             Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
             return true;
         } catch (Exception e) {
@@ -63,8 +69,8 @@ public class JwtService {
         return Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody();
     }
 
-    public String getUserIdFromToken(String token) {
-        return getClaimsFromToken(token).get("userId").toString();
+    public Long getUserIdFromToken(String token) {
+        return Long.parseLong(String.valueOf(getClaimsFromToken(token).get("userId")));
     }
 
     private Date getExpirationDateFromToken(String token) {

@@ -7,6 +7,8 @@ import com.service.todo_backend.payload.out.MessageResponseDTO;
 import com.service.todo_backend.service.AuthService;
 import com.service.todo_backend.service.JwtService;
 import com.service.todo_backend.service.PasswordSecurityService;
+import com.service.todo_backend.service.UserService;
+
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,12 +24,14 @@ public class AuthController {
 
     private final PasswordSecurityService passwordSecurityService;
     private final AuthService authService;
+    private final UserService userService;
     private final JwtService jwtService;
 
-    public AuthController(PasswordSecurityService passwordSecurityService, AuthService authService, JwtService jwtService) {
+    public AuthController(PasswordSecurityService passwordSecurityService, AuthService authService, JwtService jwtService, UserService userService) {
         this.passwordSecurityService = passwordSecurityService;
         this.authService = authService;
         this.jwtService = jwtService;
+        this.userService = userService; 
     }
 
     @PostMapping("/register")
@@ -44,10 +48,10 @@ public class AuthController {
         if (!authService.isEmailValid(registerRequest.email())) {
             return ResponseEntity.badRequest().body(new MessageResponseDTO("Error: Invalid email format!"));
         }
-        if (authService.doesEmailExist(registerRequest.email())) {
+        if (userService.doesEmailExist(registerRequest.email())) {
             return ResponseEntity.badRequest().body(new MessageResponseDTO("Error: Email is already in use!"));
         }
-        if (authService.createUser(registerRequest)) {
+        if (userService.createUser(registerRequest)) {
             return ResponseEntity.ok(new MessageResponseDTO("User registered successfully!"));
         }
         return ResponseEntity.internalServerError().body(new MessageResponseDTO("Error: User registration failed!"));
@@ -55,7 +59,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<MessageResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequest) {
-        Optional<User> user = authService.getUserByEmail(loginRequest.email());
+        Optional<User> user = userService.getUserByEmail(loginRequest.email());
         if (user.isEmpty()) {
             return ResponseEntity.badRequest().body(new MessageResponseDTO("Error: Email or Password is wrong!"));
         }

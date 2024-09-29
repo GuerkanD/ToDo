@@ -29,13 +29,14 @@ public class AuthenticationFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         String token = extractToken(httpRequest);
+        logger.info("The URL is: {}", httpRequest.getRequestURI());
         try {
             if (Arrays.stream(WebSecurityConfig.getNonAuthenticatedPaths()).toList().contains(httpRequest.getRequestURI())) {
                 chain.doFilter(request, response);
                 return;
             }
             if (token != null && jwtService.validateToken(token)) {
-                String userId = jwtService.getUserIdFromToken(token);
+                Long userId = jwtService.getUserIdFromToken(token);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userId,null,null);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 chain.doFilter(request, response);
