@@ -2,6 +2,7 @@ package com.service.todo_backend.service;
 import java.util.List;
 import java.util.Optional;
 
+import com.service.todo_backend.payload.out.CategoryResponseDTO;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +32,20 @@ public class CategoryService {
         }
     }
 
-    public List<Category> getAllCategories(Long userId) {
-        return categoryRepository.findAllByUserId(userId);
+    public List<CategoryResponseDTO> getAllCategories(Long userId) {
+        try {
+            return categoryRepository.findAllByUserId(userId)
+                    .stream()
+                    .map(category -> new CategoryResponseDTO(
+                            category.getCategoryId(),
+                            category.getTitle(),
+                            category.getContent()
+                    ))
+                    .toList();
+        } catch (Exception e) {
+            logger.error("Error while fetching the Categories: {}",e.getMessage());
+            return List.of();
+        }
     }
 
     @Transactional
@@ -69,13 +82,7 @@ public class CategoryService {
         return categoryDTO.title().length() > 100;
     }
 
-    public Optional<Category> getCategoryById(Long categoryId, Long userId) {
-        try {
-            return categoryRepository.findByIdAndUserId(categoryId, userId);
-        } catch (Exception e) {
-            logger.error("Error while fetching category: {}", e.getMessage());
-            return Optional.empty();
-        }
+    public Optional<Category> getCategoryById(Long categoryId, Long userId){
+        return categoryRepository.findByIdAndUserId(categoryId,userId);
     }
-
 }

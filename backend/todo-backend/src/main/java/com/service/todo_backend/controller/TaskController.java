@@ -1,9 +1,9 @@
 package com.service.todo_backend.controller;
 
-import com.service.todo_backend.model.Task;
 import com.service.todo_backend.model.User;
 import com.service.todo_backend.payload.in.TaskDTO;
 import com.service.todo_backend.payload.out.MessageResponseDTO;
+import com.service.todo_backend.payload.out.TaskResponseDTO;
 import com.service.todo_backend.service.TaskService;
 import com.service.todo_backend.service.UserService;
 import jakarta.validation.Valid;
@@ -31,7 +31,7 @@ public class TaskController {
     @PostMapping()
     public ResponseEntity<MessageResponseDTO> createTask(@Valid @RequestBody TaskDTO taskDTO, Authentication authentication) {
         Optional<User> user = userService.getUserById((Long) authentication.getPrincipal());
-        if(taskService.checkValidTask(taskDTO)) {
+        if(!taskService.checkValidTask(taskDTO.title())) {
             return ResponseEntity.badRequest().body(new MessageResponseDTO("Invalid task"));
         }
         if (taskService.createTask(taskDTO, user.orElseThrow())) {
@@ -41,8 +41,8 @@ public class TaskController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<Task>> getAllTasks(Authentication authentication) {
-        List<Task> tasks = taskService.getAllTasks((Long)authentication.getPrincipal());
+    public ResponseEntity<List<TaskResponseDTO>> getAllTasks(Authentication authentication) {
+        List<TaskResponseDTO> tasks = taskService.getAllTasks((Long)authentication.getPrincipal());
         return tasks.isEmpty()
                 ? ResponseEntity.status(HttpStatus.NO_CONTENT).body(tasks)
                 : ResponseEntity.ok(tasks);
@@ -51,7 +51,7 @@ public class TaskController {
     @PutMapping("/{id}")
     public ResponseEntity<MessageResponseDTO> updateTask(@PathVariable Long id, @Valid @RequestBody TaskDTO taskDTO, Authentication authentication){
         Optional<User> user = userService.getUserById((Long) authentication.getPrincipal());
-        if(taskService.checkValidTask(taskDTO)) {
+        if(!taskService.checkValidTask(taskDTO.title())) {
             return ResponseEntity.badRequest().body(new MessageResponseDTO("Invalid task"));
         }
         if(taskService.updateTasks(id,taskDTO,user.orElseThrow())){

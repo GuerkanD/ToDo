@@ -4,6 +4,10 @@ import java.util.List;
 import java.util.Optional;
 
 import com.service.todo_backend.model.Category;
+import com.service.todo_backend.payload.in.TaskDTO;
+import com.service.todo_backend.payload.out.CategoryResponseDTO;
+import com.service.todo_backend.payload.out.TaskCategoryResponseDTO;
+import com.service.todo_backend.service.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -29,10 +33,12 @@ public class CategoryController {
     private final Logger logger = LoggerFactory.getLogger(CategoryController.class);
     private final CategoryService categoryService;
     private final UserService userService;
+    private final TaskService taskService;
 
-    public CategoryController(CategoryService categoryService, UserService userService) {
+    public CategoryController(CategoryService categoryService, UserService userService, TaskService taskService) {
         this.categoryService = categoryService;
         this.userService = userService;
+        this.taskService = taskService;
     }
 
     @PostMapping()
@@ -48,18 +54,33 @@ public class CategoryController {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new MessageResponseDTO("Failed to create category"));
     }
 
+    @PostMapping("/{id}/tasks")
+    public ResponseEntity<MessageResponseDTO> createTaskOfCategory (@Valid @RequestBody TaskDTO taskDTO,@PathVariable Long id, Authentication authentication) {
+        Optional<User> user = userService.getUserById((Long) authentication.getPrincipal());
+        Optional<Category> category = categoryService.getCategoryById(id,user.orElseThrow().getId());
+        if(!taskService.checkValidTask(taskDTO.title())) {
+            return ResponseEntity.badRequest().body(new MessageResponseDTO("Invalid task"));
+        }
+        if (taskService.createTask(taskDTO, category.orElseThrow(), user.orElseThrow())) {
+            return ResponseEntity.ok(new MessageResponseDTO("Task created successfully"));
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new MessageResponseDTO("Failed to create task"));
+    }
+
     @GetMapping()
-    public ResponseEntity<List<Category>> getAllCategories(Authentication authentication) {
-        List<Category> categories = categoryService.getAllCategories((Long) authentication.getPrincipal());
+    public ResponseEntity<List<CategoryResponseDTO>> getAllCategories(Authentication authentication) {
+        List<CategoryResponseDTO> categories = categoryService.getAllCategories((Long) authentication.getPrincipal());
         return categories.isEmpty()
                 ? ResponseEntity.status(HttpStatus.NO_CONTENT).body(categories)
                 : ResponseEntity.ok(categories);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Category> getCategoryById(@PathVariable Long id, Authentication authentication) {
-        Optional<Category> category = categoryService.getCategoryById(id, (Long) authentication.getPrincipal());
-        return category.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    public ResponseEntity<List<TaskCategoryResponseDTO>> getTasksFromCategory(@PathVariable Long id, Authentication authentication) {
+        List<TaskCategoryResponseDTO> tasks = taskService.getTasksOfCategory(id,(Long)authentication.getPrincipal());
+        return tasks.isEmpty()
+                ? ResponseEntity.status(HttpStatus.NO_CONTENT).body(tasks)
+                : ResponseEntity.ok(tasks);
     }
 
     @DeleteMapping("/{id}")

@@ -2,6 +2,7 @@ package com.service.todo_backend.model;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.context.annotation.Lazy;
 
 import java.time.LocalDateTime;
 
@@ -23,8 +24,9 @@ public class Task {
     @Column(length = 20, nullable = false)
     private boolean status;
 
+    @Lazy
     @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
+    @JoinColumn(name = "category_id")
     private Category category;
 
     @ManyToOne
@@ -99,13 +101,4 @@ public class Task {
     public void setUser(User user) {
         this.user = user;
     }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public void setTaskId(Long taskId) {
-        this.id = taskId;
-    }
-
 }

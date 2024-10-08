@@ -1,8 +1,11 @@
 package com.service.todo_backend.service;
 
+import com.service.todo_backend.model.Category;
 import com.service.todo_backend.model.Task;
 import com.service.todo_backend.model.User;
 import com.service.todo_backend.payload.in.TaskDTO;
+import com.service.todo_backend.payload.out.TaskCategoryResponseDTO;
+import com.service.todo_backend.payload.out.TaskResponseDTO;
 import com.service.todo_backend.repository.TaskRepository;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -24,7 +27,7 @@ public class TaskService {
 
     public boolean createTask(TaskDTO taskDTO, User user) {
         try {
-            taskRepository.save(new Task(taskDTO.title(), taskDTO.description(), user));
+            taskRepository.save(new Task(taskDTO.title(), taskDTO.content(), user));
             return true;
         } catch (Exception e) {
             logger.error("Error creating task: {}", e.getMessage());
@@ -32,20 +35,36 @@ public class TaskService {
         }
     }
 
-    public List<Task> getAllTasks(Long userid) {
+    public boolean createTask(TaskDTO taskDTO, Category category, User user) {
+        try {
+            taskRepository.save(new Task(taskDTO.title(), taskDTO.content(), category, user));
+            return true;
+        } catch (Exception e) {
+            logger.error("Error creating task of category: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    public List<TaskResponseDTO> getAllTasks(Long userid) {
         return taskRepository.findAllByUserId(userid)
                 .stream()
-                .filter(task -> task.getCategory().getCategoryId() == 0
-                        || task.getCategory().getCategoryId() == null)
+                .filter(task -> task.getCategory() == null)
+                .map(task -> new TaskResponseDTO(
+                        task.getTaskId(),
+                        task.getTitle(),
+                        task.getContent(),
+                        task.getStatus(),
+                        task.getCreatedAt()
+                ))
                 .toList();
     }
 
-    public boolean updateTasks(Long taskId,TaskDTO taskDTO, User user) {
-        try{
+    public boolean updateTasks(Long taskId, TaskDTO taskDTO, User user) {
+        try {
             Optional<Task> task = taskRepository.findByIdAndUserId(taskId, user.getId());
-            if (task.isPresent()){
+            if (task.isPresent()) {
                 task.get().setTitle(taskDTO.title());
-                task.get().setContent(taskDTO.description());
+                task.get().setContent(taskDTO.content());
                 taskRepository.save(task.get());
                 return true;
             }
@@ -57,9 +76,9 @@ public class TaskService {
     }
 
     @Transactional
-    public boolean deleteTask(Long taskId,Long userId){
+    public boolean deleteTask(Long taskId, Long userId) {
         try {
-            taskRepository.deleteTaskByIdAndUserId(taskId,userId);
+            taskRepository.deleteTaskByIdAndUserId(taskId, userId);
             return true;
         } catch (Exception e) {
             logger.error("Error while deleting Task: {}", e.getMessage());
@@ -67,10 +86,27 @@ public class TaskService {
         }
     }
 
-    public boolean checkValidTask(TaskDTO taskDTO) {
-        if (taskDTO.title().isEmpty()) {
+    public List<TaskCategoryResponseDTO> getTasksOfCategory(Long categoryId, Long userId) {
+        try {
+            return taskRepository.findAllByCategoryIdAndUserId(categoryId, userId)
+                    .stream().map(task -> new TaskCategoryResponseDTO(
+                            task.getTaskId(),
+                            task.getCategory().getCategoryId(),
+                            task.getTitle(),
+                            task.getContent(),
+                            task.getStatus(),
+                            task.getCreatedAt()
+                    )).toList();
+        } catch (Exception e) {
+            logger.error("Error while getting all Tasks of Category {}", e.getMessage());
+            return List.of();
+        }
+    }
+
+    public boolean checkValidTask(String title) {
+        if (title.isEmpty()) {
             return false;
         }
-        return taskDTO.title().length() <= 100;
+        return title.length() <= 100;
     }
 }
