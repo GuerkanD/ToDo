@@ -2,6 +2,7 @@ package com.service.todo_backend.controller;
 
 import com.service.todo_backend.model.User;
 import com.service.todo_backend.payload.in.LoginRequestDTO;
+import com.service.todo_backend.payload.in.PasswordUpdateDTO;
 import com.service.todo_backend.payload.in.RegisterRequestDTO;
 import com.service.todo_backend.payload.out.MessageResponseDTO;
 import com.service.todo_backend.service.AuthService;
@@ -11,10 +12,8 @@ import com.service.todo_backend.service.UserService;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -68,5 +67,16 @@ public class AuthController {
         }
         String generateToken = jwtService.generateToken(user.get());
         return ResponseEntity.ok(new MessageResponseDTO(generateToken));
+    }
+
+    @PutMapping("/password")
+    public ResponseEntity<MessageResponseDTO> updatePassword(Authentication authentication, @Valid @RequestBody PasswordUpdateDTO passwordUpdateDTO){
+        if (!authService.validatePassword(passwordUpdateDTO.password())){
+            return ResponseEntity.badRequest().body(new MessageResponseDTO("Error: Password does not meet requirements!"));
+        }
+        if (authService.updatePassword((Long)authentication.getPrincipal(),passwordUpdateDTO.password())){
+            return ResponseEntity.ok(new MessageResponseDTO("Successfully Updated Password"));
+        }
+        return ResponseEntity.internalServerError().body(new MessageResponseDTO("Error: Failed to Update the Password"));
     }
 }

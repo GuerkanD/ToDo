@@ -2,6 +2,9 @@ package com.service.todo_backend.service;
 
 import java.util.Optional;
 
+import com.service.todo_backend.payload.in.UserUpdateDTO;
+import com.service.todo_backend.payload.out.UserResponseDTO;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -32,7 +35,7 @@ public class UserService {
         }
     }
 
-    public boolean doesEmailExist(String email) { 
+    public boolean doesEmailExist(String email) {
         return userRepository.existsByEmail(email);
     }
 
@@ -47,4 +50,57 @@ public class UserService {
     public Optional<User> getUserById(Long id) {
         return userRepository.findById(id);
     }
+
+    public UserResponseDTO getUserDetails(Long userId) {
+        try {
+            Optional<User> user = userRepository.findById(userId);
+            return user.map(u -> new UserResponseDTO(
+                    u.getEmail(),
+                    u.getFirstname(),
+                    u.getLastname(),
+                    u.getCreatedAt()
+            )).orElse(null);
+        } catch (Exception e) {
+            logger.error("Error while fetching User Data {}", e.getMessage());
+            return null;
+        }
+    }
+
+    public boolean updateUser(UserUpdateDTO userUpdateDTO, Long id) {
+        try {
+            Optional<User> user = userRepository.findById(id);
+            if (user.isPresent()) {
+                user.map(u -> {
+                    u.setEmail(userUpdateDTO.email());
+                    u.setFirstname(userUpdateDTO.firstname());
+                    u.setLastname(userUpdateDTO.lastname());
+                    return u;
+                });
+                userRepository.save(user.get());
+                return true;
+            } else {
+                logger.error("Error: User not found");
+                return false;
+            }
+        } catch (Exception e) {
+            logger.error("Error while Updating user: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    @Transactional
+    public boolean deleteUser(Long id){
+        try {
+            Optional<User> user = userRepository.findById(id);
+            if (user.isEmpty()) {
+                return false;
+            }
+            userRepository.delete(user.get());
+            return true;
+        } catch (Exception e){
+            logger.error("Error while Updating the User {}",e.getMessage());
+            return false;
+        }
+    }
+
 }

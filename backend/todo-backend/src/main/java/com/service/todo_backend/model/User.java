@@ -13,10 +13,10 @@ public class User {
     @Column(name = "u_id", nullable = false, updatable = false)
     private Long id;
 
-    @Column(length = 30,nullable = false)
+    @Column(length = 30, nullable = false)
     private String firstname;
 
-    @Column(length = 30,nullable = false)
+    @Column(length = 30, nullable = false)
     private String lastname;
 
     @Column(length = 64, unique = true)
@@ -73,5 +73,9 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 }
