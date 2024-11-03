@@ -6,6 +6,7 @@ import com.service.todo_backend.payload.out.CategoryResponseDTO;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.service.todo_backend.model.Category;
@@ -59,19 +60,19 @@ public class CategoryService {
         }
     }
 
-    public boolean updateCategory(Long categoryId, CategoryDTO categoryDTO, User user) {
+    public HttpStatus updateCategory(Long categoryId, CategoryDTO categoryDTO, User user) {
         try {
             Optional<Category> category = categoryRepository.findByIdAndUserId(categoryId, user.getId());
             if (category.isPresent()) {
                 category.get().setTitle(categoryDTO.title());
                 category.get().setContent(categoryDTO.description());
                 categoryRepository.save(category.get());
-                return true;
+                return HttpStatus.OK;
             }
-            return false;
+            return HttpStatus.NOT_FOUND;
         } catch (Exception e) {
             logger.error("Error while updating category: {}", e.getMessage());
-            return false;
+            return HttpStatus.INTERNAL_SERVER_ERROR;
         }
     }
 

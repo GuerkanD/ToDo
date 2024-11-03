@@ -58,13 +58,14 @@ public class CategoryController {
     public ResponseEntity<MessageResponseDTO> createTaskOfCategory (@Valid @RequestBody TaskDTO taskDTO,@PathVariable Long id, Authentication authentication) {
         Optional<User> user = userService.getUserById((Long) authentication.getPrincipal());
         Optional<Category> category = categoryService.getCategoryById(id,user.orElseThrow().getId());
-        if(!taskService.checkValidTask(taskDTO.title())) {
+        if (!taskService.checkValidTask(taskDTO.title())) {
             return ResponseEntity.badRequest().body(new MessageResponseDTO("Invalid task"));
         }
         if (taskService.createTask(taskDTO, category.orElseThrow(), user.orElseThrow())) {
             return ResponseEntity.ok(new MessageResponseDTO("Task created successfully"));
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new MessageResponseDTO("Failed to create task"));
+
     }
 
     @GetMapping()
@@ -102,8 +103,11 @@ public class CategoryController {
         if (categoryService.checkValidCategory(categoryDTO)) {
             return ResponseEntity.badRequest().body(new MessageResponseDTO("Invalid category"));
         }
-        if (categoryService.updateCategory(id, categoryDTO, user.orElseThrow())) {
+        if (categoryService.updateCategory(id, categoryDTO, user.orElseThrow()) == HttpStatus.OK) {
             return ResponseEntity.ok(new MessageResponseDTO("Category updated successfully"));
+        }
+        else if (categoryService.updateCategory(id, categoryDTO, user.orElseThrow()) == HttpStatus.NOT_FOUND) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageResponseDTO("Category not found"));
         }
         logger.error("Failed to update category");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new MessageResponseDTO("Failed to update category"));

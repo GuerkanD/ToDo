@@ -54,8 +54,10 @@ public class TaskController {
         if(!taskService.checkValidTask(taskDTO.title())) {
             return ResponseEntity.badRequest().body(new MessageResponseDTO("Invalid task"));
         }
-        if(taskService.updateTasks(id,taskDTO,user.orElseThrow())){
+        if(taskService.updateTasks(id,taskDTO,user.orElseThrow()) == HttpStatus.OK){ //TODO add error for task not found
             return ResponseEntity.ok(new MessageResponseDTO("Task updated successfully"));
+        } else if (taskService.updateTasks(id,taskDTO,user.orElseThrow()) == HttpStatus.NOT_FOUND){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageResponseDTO("Task not found"));
         }
         return ResponseEntity.internalServerError().body(new MessageResponseDTO("Failed to Update Task"));
     }

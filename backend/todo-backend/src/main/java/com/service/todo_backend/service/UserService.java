@@ -7,6 +7,7 @@ import com.service.todo_backend.payload.out.UserResponseDTO;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.service.todo_backend.model.User;
@@ -66,7 +67,7 @@ public class UserService {
         }
     }
 
-    public boolean updateUser(UserUpdateDTO userUpdateDTO, Long id) {
+    public HttpStatus updateUser(UserUpdateDTO userUpdateDTO, Long id) {
         try {
             Optional<User> user = userRepository.findById(id);
             if (user.isPresent()) {
@@ -77,29 +78,29 @@ public class UserService {
                     return u;
                 });
                 userRepository.save(user.get());
-                return true;
+                return HttpStatus.OK;
             } else {
                 logger.error("Error: User not found");
-                return false;
+                return HttpStatus.NOT_FOUND;
             }
         } catch (Exception e) {
             logger.error("Error while Updating user: {}", e.getMessage());
-            return false;
+            return HttpStatus.INTERNAL_SERVER_ERROR;
         }
     }
 
     @Transactional
-    public boolean deleteUser(Long id){
+    public HttpStatus deleteUser(Long id){
         try {
             Optional<User> user = userRepository.findById(id);
             if (user.isEmpty()) {
-                return false;
+                return HttpStatus.NOT_FOUND;
             }
             userRepository.delete(user.get());
-            return true;
+            return HttpStatus.OK;
         } catch (Exception e){
             logger.error("Error while Updating the User {}",e.getMessage());
-            return false;
+            return HttpStatus.INTERNAL_SERVER_ERROR;
         }
     }
 

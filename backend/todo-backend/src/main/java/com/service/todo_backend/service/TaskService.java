@@ -10,7 +10,9 @@ import com.service.todo_backend.repository.TaskRepository;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.w3c.dom.html.HTMLTableCaptionElement;
 
 import java.util.List;
 import java.util.Optional;
@@ -59,19 +61,19 @@ public class TaskService {
                 .toList();
     }
 
-    public boolean updateTasks(Long taskId, TaskDTO taskDTO, User user) {
+    public HttpStatus updateTasks(Long taskId, TaskDTO taskDTO, User user) {
         try {
             Optional<Task> task = taskRepository.findByIdAndUserId(taskId, user.getId());
             if (task.isPresent()) {
                 task.get().setTitle(taskDTO.title());
                 task.get().setContent(taskDTO.content());
                 taskRepository.save(task.get());
-                return true;
+                return HttpStatus.OK;
             }
-            return false;
+            return HttpStatus.NOT_FOUND;
         } catch (Exception e) {
             logger.error("Error while updating Task: {}", e.getMessage());
-            return false;
+            return HttpStatus.INTERNAL_SERVER_ERROR;
         }
     }
 
@@ -105,8 +107,15 @@ public class TaskService {
 
     public boolean checkValidTask(String title) {
         if (title.isEmpty()) {
+            System.out.println("Error: Title cannot be empty");
             return false;
         }
-        return title.length() <= 100;
+
+        if (title.length() > 100) {
+            System.out.println("Error: Title is too long");
+            return false;
+        }
+        return true;
     }
+
 }
