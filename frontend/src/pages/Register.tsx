@@ -1,5 +1,6 @@
 import {useState} from "react";
 import {postRegister} from "../api/Api";
+import {useNavigate} from "react-router-dom";
 
 export default function Register() {
 
@@ -8,7 +9,7 @@ export default function Register() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [passwordRepeat, setPasswordRepeat] = useState('');
-
+    const navigator = useNavigate();
     function submitRegister(e: React.FormEvent) {
         e.preventDefault();
         if (password !== passwordRepeat) {
@@ -17,6 +18,12 @@ export default function Register() {
         }
         postRegister(firstname, lastname, email, password).then((data) => {
             console.log(data);
+            if (data.message !== 'User registered successfully!') {
+                alert(`Register failed: ${data.message}`);
+                return;
+            }
+
+            navigator('/login');
         });
     }
 
