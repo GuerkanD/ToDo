@@ -11,6 +11,7 @@ import com.service.todo_backend.service.PasswordSecurityService;
 import com.service.todo_backend.service.UserService;
 
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -60,10 +61,10 @@ public class AuthController {
     public ResponseEntity<MessageResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequest) {
         Optional<User> user = userService.getUserByEmail(loginRequest.email());
         if (user.isEmpty()) {
-            return ResponseEntity.badRequest().body(new MessageResponseDTO("Error: Email or Password is wrong!"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponseDTO("Error: Email or Password is wrong!"));
         }
         if (!authService.comparePasswords(loginRequest,user.get())) {
-            return ResponseEntity.badRequest().body(new MessageResponseDTO("Error: Email or Password is wrong!"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponseDTO("Error: Email or Password is wrong!"));
         }
         String generateToken = jwtService.generateToken(user.get());
         return ResponseEntity.ok(new MessageResponseDTO(generateToken));
