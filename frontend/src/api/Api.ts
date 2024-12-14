@@ -1,3 +1,5 @@
+import StatusCodes from 'http-status-codes'
+
 const API_ROUTE = 'http://localhost:8080';
 
 export const postLogin = async (email: string, password: string) => {
@@ -8,6 +10,7 @@ export const postLogin = async (email: string, password: string) => {
         },
         body: JSON.stringify({ email, password }),
     });
+    if (response.status == StatusCodes.UNAUTHORIZED) return StatusCodes.UNAUTHORIZED;
     return response.json();
 }
 
