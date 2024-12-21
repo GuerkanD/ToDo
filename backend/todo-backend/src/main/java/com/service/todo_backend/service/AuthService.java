@@ -2,11 +2,9 @@ package com.service.todo_backend.service;
 
 import com.service.todo_backend.model.User;
 import com.service.todo_backend.payload.in.LoginRequestDTO;
-import com.service.todo_backend.payload.out.MessageResponseDTO;
 import com.service.todo_backend.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
