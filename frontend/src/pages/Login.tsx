@@ -1,6 +1,7 @@
-import {useState} from "react";
-import {postLogin} from "../api/Api";
-import {useNavigate} from "react-router-dom";
+import { useState } from "react";
+import { postLogin } from "../api/Api";
+import { useNavigate } from "react-router-dom";
+import React from "react";
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -29,15 +30,23 @@ export default function Login() {
 
     return (
         <>
-            <div>
-                <h1>Login</h1>
-                <form onSubmit={(e) => loginUser(e)}>
-                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email"/>
-                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-                           placeholder="Password"/>
-                    <button>Login</button>
-                </form>
-                <p>{errorMessage}</p>
+            <div className="container">
+                <div className="row justify-content-center align-items-center vh-100">
+                    <div className="col-md-4 col-sm-6">
+                        <h1 className="text-center">Login</h1>
+                        <form onSubmit={(e) => loginUser(e)}>
+                            <label>Enter your Email</label>
+                            <input className="form-control" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
+                            <label>Please Enter your Password</label>
+                            <input className="form-control" type="password" value={password} onChange={(e) => setPassword(e.target.value)}
+                                placeholder="Password" />
+                            <div>
+                                <button className="btn">Login</button>
+                            </div>
+                        </form>
+                    </div>
+                    <p>{errorMessage}</p>
+                </div>
             </div>
         </>
     )

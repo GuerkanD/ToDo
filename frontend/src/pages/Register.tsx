@@ -1,6 +1,7 @@
 import {useState} from "react";
 import {postRegister} from "../api/Api";
 import {useNavigate} from "react-router-dom";
+import React from "react";
 
 export default function Register() {
 
