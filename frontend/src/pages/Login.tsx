@@ -1,21 +1,38 @@
 import { useState } from "react";
 import { postLogin } from "../api/Api";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import React from "react";
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('')
+    const [errorEmail, setErrorEmail] = useState('')
+    const [errorPassword, setErrorPassword] = useState('')
     const navigator = useNavigate();
 
     function loginUser(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        setErrorMessage('');
-        if (email === '' || password === '') {
-            alert('Please fill in all fields');
-            return;
+        
+        setErrorMessage('')
+        setErrorEmail('');
+        setErrorPassword('')
+        const fieldValidator = (): boolean => {
+            let valid = true;
+            if (email === '') {
+                setErrorEmail('Field cannot be empty')
+                valid = false;
+            }
+            if (password === '') {
+                setErrorPassword('Field cannot be empty')
+                valid = false;
+            }
+            return valid;
         }
+
+        
+        if (fieldValidator() === false) return;
+
         postLogin(email, password).then((data) => {
             if (data === 401) {
                 setErrorMessage('Invalid email or password');
@@ -25,27 +42,29 @@ export default function Login() {
             const token = data.message;
             localStorage.setItem('token', token);
             navigator('/');
-        })
+        }).catch((e) => alert(`An unexpected error occured of type: ${e.message}`))
     }
 
     return (
         <>
             <div className="container">
                 <div className="row justify-content-center align-items-center vh-100">
-                    <div className="col-md-4 col-sm-6">
-                        <h1 className="text-center">Login</h1>
+                    <div className="col-md-4 col-sm-6 border rounded">
+                        <h1 className="text-center m-3">Login</h1>
                         <form onSubmit={(e) => loginUser(e)}>
                             <label>Enter your Email</label>
                             <input className="form-control" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
-                            <label>Please Enter your Password</label>
+                            <p className="text-danger">{errorEmail}</p>
+                            <label className="mt-3">Please Enter your Password</label>
                             <input className="form-control" type="password" value={password} onChange={(e) => setPassword(e.target.value)}
                                 placeholder="Password" />
-                            <div>
-                                <button className="btn">Login</button>
+                            <p className="text-danger">{errorPassword}</p>
+                            <label>Don't have an Account? Make one <Link to="/register">here!</Link></label>
+                            <div className="text-center">
+                                <button className="btn btn-primary mb-3 col-12">Login</button>
                             </div>
                         </form>
                     </div>
-                    <p>{errorMessage}</p>
                 </div>
             </div>
         </>
