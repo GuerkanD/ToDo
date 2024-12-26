@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { postLogin } from "../api/Api";
 import { Link, useNavigate } from "react-router-dom";
+import { ERROR_MESSAGES } from '../error/constants';
 import React from "react";
 
 export default function Login() {
@@ -17,14 +18,15 @@ export default function Login() {
         setErrorMessage('')
         setErrorEmail('');
         setErrorPassword('')
+        
         const fieldValidator = (): boolean => {
             let valid = true;
             if (email === '') {
-                setErrorEmail('Field cannot be empty')
+                setErrorEmail(ERROR_MESSAGES.FIELD_EMPTY)
                 valid = false;
             }
             if (password === '') {
-                setErrorPassword('Field cannot be empty')
+                setErrorPassword(ERROR_MESSAGES.FIELD_EMPTY)
                 valid = false;
             }
             return valid;

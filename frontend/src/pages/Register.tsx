@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { postRegister } from "../api/Api";
 import { Link, useNavigate } from "react-router-dom";
+import { ERROR_MESSAGES } from '../error/constants';
 import React from "react";
 
 export default function Register() {
@@ -12,12 +13,51 @@ export default function Register() {
     const [passwordRepeat, setPasswordRepeat] = useState('');
     const navigator = useNavigate();
 
+    const [lastnameError, setLastnameError] = useState('')
+    const [firstnameError,setFirstnameError] = useState('')
+    const [emailError, setEmailError] = useState('')
+    const [passwordError, setPasswordError] = useState('')
+    const [passwordRepeatError, setPasswordRepeatError] = useState('')
+    
+
     function submitRegister(e: React.FormEvent) {
         e.preventDefault();
-        if (password !== passwordRepeat) {
-            alert('Passwords do not match');
-            return;
+        setFirstnameError(''); 
+        setLastnameError('');
+        setEmailError('');
+        setPasswordError('');
+
+        const validEntries = (): boolean => {
+            let valid = true;
+            if (firstname === ''){
+                setFirstnameError(ERROR_MESSAGES.FIELD_EMPTY)
+                valid = false;
+            }
+            if (lastname === ''){
+                setLastnameError(ERROR_MESSAGES.FIELD_EMPTY)
+                valid = false;
+            }
+            if (email === '') {
+                setEmailError(ERROR_MESSAGES.FIELD_EMPTY)
+            }
+            if (password === ''){
+                setPasswordError(ERROR_MESSAGES.FIELD_EMPTY)
+                valid = false;
+            }
+            if (passwordRepeat === ''){
+                setPasswordRepeatError(ERROR_MESSAGES.FIELD_EMPTY)
+                valid = false;
+            }
+            if ((password !== passwordRepeat) && (password !== '') && (passwordRepeat !== '')) {
+                setPasswordError(ERROR_MESSAGES.UNMATCHING_PASSWORD)
+                setPasswordRepeatError(ERROR_MESSAGES.UNMATCHING_PASSWORD)
+                valid = false;
+            }
+            return valid;
         }
+
+        if(validEntries() === false) return;
+
         postRegister(firstname, lastname, email, password).then((data) => {
             console.log(data);
             if (data.message !== 'User registered successfully!') {
@@ -26,7 +66,7 @@ export default function Register() {
             }
 
             navigator('/login');
-        });
+        }).catch((e) => alert(`An unexpected error occured of type: ${e.message}`));
     }
 
     return (<>
@@ -58,8 +98,8 @@ export default function Register() {
                             <input className="form-control" type="password" value={passwordRepeat} onChange={(e) => setPasswordRepeat(e.target.value)} placeholder="Repeat Password" />
                         </div>
                         <div className="my-3">
-                            <label>Already have an Account? Press <Link to="/login">here</Link> to log in</label>
                             <button className="btn btn-primary col-12">Register</button>
+                            <label>Already have an Account? Press <Link to="/login">here</Link> to log in</label>
                         </div>
                     </form>
                 </div>
