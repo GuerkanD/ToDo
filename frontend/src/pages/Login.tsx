@@ -14,11 +14,11 @@ export default function Login() {
 
     function loginUser(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        
+
         setErrorMessage('')
         setErrorEmail('');
         setErrorPassword('')
-        
+
         const fieldValidator = (): boolean => {
             let valid = true;
             if (email === '') {
@@ -32,7 +32,7 @@ export default function Login() {
             return valid;
         }
 
-        
+
         if (fieldValidator() === false) return;
 
         postLogin(email, password).then((data) => {
@@ -40,7 +40,6 @@ export default function Login() {
                 setErrorMessage('Invalid email or password');
                 return;
             }
-            console.log(data);
             const token = data.message;
             localStorage.setItem('token', token);
             navigator('/');
@@ -54,16 +53,20 @@ export default function Login() {
                     <div className="col-md-4 col-sm-6 border rounded">
                         <h1 className="text-center m-3">Login</h1>
                         <form onSubmit={(e) => loginUser(e)}>
-                            <label>Enter your Email</label>
-                            <input className="form-control" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
-                            <p className="text-danger">{errorEmail}</p>
-                            <label className="mt-3">Please Enter your Password</label>
+                            <div>
+                                <label>Enter your Email</label>
+                                <input className="form-control" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
+                                <p className="text-danger">{errorEmail}</p>
+                            </div>
+                            <div>
+                            <label>Please Enter your Password</label>
                             <input className="form-control" type="password" value={password} onChange={(e) => setPassword(e.target.value)}
                                 placeholder="Password" />
                             <p className="text-danger">{errorPassword}</p>
-                            <label>Don't have an Account? Make one <Link to="/register">here!</Link></label>
-                            <div className="text-center">
-                                <button className="btn btn-primary mb-3 col-12">Login</button>
+                            </div>
+                            <div className="my-2">
+                                <button className="btn btn-primary col-12">Login</button>
+                                <label>Don't have an Account? Make one <Link to="/register">here!</Link></label>
                             </div>
                         </form>
                     </div>

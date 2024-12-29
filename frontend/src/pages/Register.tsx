@@ -2,6 +2,8 @@ import { useState } from "react";
 import { postRegister } from "../api/Api";
 import { Link, useNavigate } from "react-router-dom";
 import { ERROR_MESSAGES } from '../error/constants';
+import { isPasswordValid } from '../security/PasswordSecurity';
+import { isEmailValid } from '../security/EmailSecurity'; 
 import React from "react";
 
 export default function Register() {
@@ -26,9 +28,12 @@ export default function Register() {
         setLastnameError('');
         setEmailError('');
         setPasswordError('');
+        setPasswordRepeatError('')
 
         const validEntries = (): boolean => {
             let valid = true;
+            let validationEmail;
+            let validationPassword;
             if (firstname === ''){
                 setFirstnameError(ERROR_MESSAGES.FIELD_EMPTY)
                 valid = false;
@@ -37,11 +42,13 @@ export default function Register() {
                 setLastnameError(ERROR_MESSAGES.FIELD_EMPTY)
                 valid = false;
             }
-            if (email === '') {
-                setEmailError(ERROR_MESSAGES.FIELD_EMPTY)
+            validationEmail = isEmailValid(email);
+            if (validationEmail !== true) {
+                setEmailError(validationEmail)
             }
-            if (password === ''){
-                setPasswordError(ERROR_MESSAGES.FIELD_EMPTY)
+            validationPassword = isPasswordValid(password);
+            if (validationPassword !== true){
+                setPasswordError(validationPassword)
                 valid = false;
             }
             if (passwordRepeat === ''){
@@ -64,7 +71,6 @@ export default function Register() {
                 alert(`Register failed: ${data.message}`);
                 return;
             }
-
             navigator('/login');
         }).catch((e) => alert(`An unexpected error occured of type: ${e.message}`));
     }
@@ -75,29 +81,34 @@ export default function Register() {
                 <div className="col-md-7 col-sm-6 border rounded">
                     <h1 className="text-center m-3">Register</h1>
                     <form onSubmit={(e) => submitRegister(e)}>
-                        <div className="row my-3">
+                        <div className="row">
                             <div className="col-md-6">
                                 <label>Enter your First Name</label>
                                 <input className="form-control" type="text" value={firstname} onChange={(e) => setFirstname(e.target.value)} placeholder="First Name" />
+                                <p className="text-danger">{firstnameError}</p>
                             </div>
                             <div className="col-md-6">
                                 <label>Enter your Last Name</label>
                                 <input className="form-control" type="text" value={lastname} onChange={(e) => setLastname(e.target.value)} placeholder="Last Name" />
+                                <p className="text-danger">{lastnameError}</p>
                             </div>
                         </div>
                         <div>
                             <label>Enter your Email</label>
                             <input className="form-control" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
+                            <p className="text-danger">{emailError}</p>
                         </div>
                         <div>
                             <label>Enter your Password</label>
                             <input className="form-control" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
+                            <p className="text-danger">{passwordError}</p>
                         </div>
                         <div>
                             <label>Repeat your Password</label>
                             <input className="form-control" type="password" value={passwordRepeat} onChange={(e) => setPasswordRepeat(e.target.value)} placeholder="Repeat Password" />
+                            <p className="text-danger">{passwordRepeatError}</p>
                         </div>
-                        <div className="my-3">
+                        <div className="my-2">
                             <button className="btn btn-primary col-12">Register</button>
                             <label>Already have an Account? Press <Link to="/login">here</Link> to log in</label>
                         </div>
